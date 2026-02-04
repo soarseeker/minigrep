@@ -1,5 +1,6 @@
 use std::env;
 use std::fs;
+use std::process;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -10,7 +11,13 @@ fn main() {
     // this line used a function to parse the arguments
     // let config = parse_config(&args);
 
-    let config = Config::new(&args);
+    // this was the config assignment before returning and error result
+    //let config = Config::new(&args);
+
+    let config = Config::build(&args).unwrap_or_else(|err| {
+        println!("Problem parsing arguments: {err}");
+        process::exit(1);
+    });
 
     show_current_dir();
 
@@ -28,17 +35,32 @@ struct Config {
     query: String,
     file_path: String,
 }
-
+// this is the implimentation for config when build is used
 impl Config {
-    fn new(args: &[String]) -> Config {
+    fn build(args: &[String]) -> Result<Config, &'static str> {
         if args.len() < 3 {
-            panic!("not enough arguments");}
+            return Err("not enough arguments");
+        }
+
         let query = args[1].clone();
         let file_path = args[2].clone();
 
-        Config { query, file_path }
+        Ok(Config { query, file_path })
     }
 }
+
+// this was configs implimentation when panic was used
+/* impl Config {
+    fn new(args: &[String]) -> Result< Config, &'static str> {
+        if args.len() < 3 {
+            return Err("not enough arguments");
+        }
+        let query = args[1].clone();
+        let file_path = args[2].clone();
+
+       Ok( Config { query, file_path })
+    }
+} */
 // this was the function to parse the arguments
 /* fn parse_config(args: &[String]) -> Config {
     let query = args[1].clone();
