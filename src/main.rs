@@ -1,8 +1,8 @@
+use minigrep::search;
 use std::env;
+use std::error::Error;
 use std::fs;
 use std::process;
-use std::error::Error;
-use minigrep::search;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -10,22 +10,11 @@ fn main() {
         println!("Problem parsing arguments: {err}");
         process::exit(1);
     });
-    show_current_dir();
 
-        if let Err(e) = run(config) {
+    if let Err(e) = run(config) {
         println!("Application error: {e}");
-        process::exit(1);}
-}
-
-fn run(config: Config) -> Result<(), Box<dyn Error>> {
-    let contents = fs::read_to_string(config.file_path)?;
-
-    // println!("With text:\n{contents}");
-    for line in search(&config.query, &contents) {
-        println!("{line}");
+        process::exit(1);
     }
-
-    Ok(())
 }
 
 struct Config {
@@ -44,6 +33,17 @@ impl Config {
 
         Ok(Config { query, file_path })
     }
+}
+
+fn run(config: Config) -> Result<(), Box<dyn Error>> {
+    let contents = fs::read_to_string(config.file_path)?;
+
+    // println!("With text:\n{contents}");
+    for line in search(&config.query, &contents) {
+        println!("{line}");
+    }
+
+    Ok(())
 }
 
 fn show_current_dir() {
